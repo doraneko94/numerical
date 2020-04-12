@@ -41,4 +41,21 @@ fn main() {
     println!("x = [   0.2,    1.0,    2.0,    0.5,    1.5,    3.0]");
     println!("y = [0.0793, 0.3413, 0.4772, 0.1915, 0.4332, 0.4987]");
     println!("f(0.7) = {:.5}", i.calc(0.7));
+    println!("");
+
+    println!("*** Newton's Forward Difference interpolation ***");
+    let i: NewtonForItp<f64> = NewtonForItp::new(&vec![   0.0,    0.5,    1.0,    1.5,    2.0], 
+                                                 &vec![0.0000, 0.1014, 0.6931, 2.0617, 4.3944]);
+    println!("x = [   0.0,    0.5,    1.0,    1.5,    2.0]");
+    println!("y = [0.0000, 0.1014, 0.6931, 2.0617, 4.3944]");
+    println!("f(0.8) = {:.5}", i.calc(0.8));
+    println!("");
+
+    let mut i: NewtonForItp<f64> = NewtonForItp::new(&vec![   0.0,    0.5,    1.0], 
+                                                     &vec![0.0000, 0.1014, 0.6931]);
+    i.push_vec(&vec![   1.5,    2.0], 
+               &vec![2.0617, 4.3944]);
+    println!("x = [   0.0,    0.5,    1.0,    1.5,    2.0]");
+    println!("y = [0.0000, 0.1014, 0.6931, 2.0617, 4.3944]");
+    println!("f(0.8) = {:.5}", i.calc(0.8));
 }
