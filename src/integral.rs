@@ -1,6 +1,6 @@
 use num_traits::float::Float;
 use num_traits::{Zero, One};
-use crate::interpolation::pnx;
+use crate::polynomial::pnx;
 use std::collections::VecDeque;
 
 pub struct Integral<F: Float> {
