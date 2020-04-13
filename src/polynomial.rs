@@ -12,10 +12,10 @@ impl<F: Float + FloatConst> Chebyshev<F> {
         let zeta = zeta_vec(n);
         let f: Vec<F> = zeta.iter().map(|&z| rhs(z)).collect();
         let mut c = Vec::with_capacity(n+1);
-        c.push(F::from(1.0 / n as f64).unwrap() * f.iter().fold(zero, |m, &i| m + i));
+        c.push(F::from(1.0 / (n + 1) as f64).unwrap() * f.iter().fold(zero, |m, &i| m + i));
         let tnx: Vec<Vec<F>> = zeta.iter().map(|&z| tnx_vec(n, z)).collect();
         for i in 1..n+1 {
-            c.push(F::from(2.0 / n as f64).unwrap() * (0..n).map(|j| f[j] * tnx[j][i]).fold(zero, |m, k| m + k));
+            c.push(F::from(2.0 / (n + 1) as f64).unwrap() * (0..n+1).map(|j| f[j] * tnx[j][i]).fold(zero, |m, k| m + k));
         }
         Self { rhs, c }
     }
@@ -43,7 +43,7 @@ pub fn tnx_vec<F: Float + FloatConst>(n: usize, x: F) -> Vec<F> {
         let mut ret = Vec::with_capacity(n+1);
         ret.push(one);
         ret.push(x);
-        for i in 1..n {
+        for i in 1..n+1 {
             ret.push(two * x * ret[i] - ret[i-1]);
         }
         ret
@@ -51,9 +51,9 @@ pub fn tnx_vec<F: Float + FloatConst>(n: usize, x: F) -> Vec<F> {
 }
 
 pub fn zeta_vec<F: Float + FloatConst>(n: usize) -> Vec<F> {
-    let mut ret = Vec::with_capacity(n);
-    for i in 0..n {
-        ret.push((F::from(2 * i + 1).unwrap() / F::from(2 * n).unwrap() * F::PI()).cos());
+    let mut ret = Vec::with_capacity(n+1);
+    for i in 0..n+1 {
+        ret.push((F::from(2 * i + 1).unwrap() / F::from(2 * (n+1)).unwrap() * F::PI()).cos());
     }
     ret
 }
