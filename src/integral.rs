@@ -97,6 +97,28 @@ impl<F:Float + FloatConst> Integral<F> {
         let s = (0..n+1).map(|k| n1_hnk(k) * f[k]).fold(zero, |m, i| m + i);
         F::from(b - a).unwrap() / F::from(n + 1).unwrap() * s
     }
+
+    pub fn def(&self, a: F, b: F, n: usize, h: F) -> F {
+        let zero: F = Zero::zero();
+        let one: F = One::one();
+        let two: F = one + one;
+        let nf: F = F::from(n).unwrap();
+        let bma2 = (b - a) / two;
+        let bpa2 = (b + a) / two;
+        let tau = |t: F| bma2 * t + bpa2;
+        let pi: F = F::PI();
+        let phi = |t: F| (pi / two * t.sinh()).tanh();
+        let phip = |t: F| pi * t.cosh() / (one + (pi * t.sinh()).cosh());
+        let tn: F = h * nf;
+        let t0: F = zero - tn;
+        let gtau = |t: F| (self.rhs)(tau(phi(t))) * phip(t);
+        let mut s = (gtau(t0) + gtau(tn)) / two;
+        for i in 1..2*n {
+            let t: F = (F::from(i).unwrap() - nf) * h;
+            s = s + gtau(t);
+        }
+        s * h * bma2
+    }
 }
 
 pub fn solve_pnx<F: Float>(n: usize) -> Vec<F> {
