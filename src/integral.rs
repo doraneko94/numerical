@@ -1,13 +1,13 @@
-use num_traits::float::Float;
+use num_traits::float::{Float, FloatConst};
 use num_traits::{Zero, One};
-use crate::polynomial::pnx;
+use crate::polynomial::{pnx, zeta_vec};
 use std::collections::VecDeque;
 
-pub struct Integral<F: Float> {
+pub struct Integral<F: Float + FloatConst> {
     pub rhs: fn(F) -> F,
 }
 
-impl<F:Float> Integral<F> {
+impl<F:Float + FloatConst> Integral<F> {
     pub fn new(rhs: fn(F)->F) -> Self {
         Self { rhs }
     }
@@ -75,6 +75,27 @@ impl<F:Float> Integral<F> {
             wi * (self.rhs)(xi)
         }).fold(zero, |m, e| m + e);
         bma2 * s
+    }
+
+    pub fn chebyshev(&self, a: F, b: F, n: usize) -> F {
+        let n2 = n / 2;
+        let n1f: F = F::from(2*(n+1)).unwrap();
+        let theta: Vec<F> = (0..n+1).map(|k: usize| F::from(2*k+1).unwrap() / n1f * F::PI()).collect();
+        let zeta = zeta_vec(n);
+        let zero: F = Zero::zero();
+        let one: F = One::one();
+        let two: F = one + one;
+        let bma2 = (b - a) / two;
+        let bpa2 = (b + a) / two;
+        let tau = |t: F| bma2 * t + bpa2;
+        let f: Vec<F> = zeta.iter().map(|&z| (self.rhs)(tau(z))).collect();
+        let denom: Vec<F> = (1..n2+1).map(|j| F::from(2*j*2*j-1).unwrap()).collect();
+        let n1_hnk = |k: usize| {
+            let s: F = (1..n2+1).map(|j| (F::from(2 * j).unwrap() * theta[k]).cos() / denom[j-1]).fold(zero, |m, i| m + i);
+            one - two * s
+        };
+        let s = (0..n+1).map(|k| n1_hnk(k) * f[k]).fold(zero, |m, i| m + i);
+        F::from(b - a).unwrap() / F::from(n + 1).unwrap() * s
     }
 }
 

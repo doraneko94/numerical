@@ -52,8 +52,9 @@ pub fn tnx_vec<F: Float + FloatConst>(n: usize, x: F) -> Vec<F> {
 
 pub fn zeta_vec<F: Float + FloatConst>(n: usize) -> Vec<F> {
     let mut ret = Vec::with_capacity(n+1);
+    let n1f = F::from(2 * (n+1)).unwrap();
     for i in 0..n+1 {
-        ret.push((F::from(2 * i + 1).unwrap() / F::from(2 * (n+1)).unwrap() * F::PI()).cos());
+        ret.push((F::from(2 * i + 1).unwrap() / n1f * F::PI()).cos());
     }
     ret
 }
