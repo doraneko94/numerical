@@ -95,7 +95,7 @@ impl<F:Float + FloatConst> Integral<F> {
             one - two * s
         };
         let s = (0..n+1).map(|k| n1_hnk(k) * f[k]).fold(zero, |m, i| m + i);
-        F::from(b - a).unwrap() / F::from(n + 1).unwrap() * s
+        (b - a) / F::from(n + 1).unwrap() * s
     }
 
     pub fn def(&self, a: F, b: F, n: usize, h: F) -> F {
