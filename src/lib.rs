@@ -6,3 +6,4 @@ pub mod polynomial;
 pub mod double;
 pub mod pde;
 pub mod explicit;
+pub mod implicit;
