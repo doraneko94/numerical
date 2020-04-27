@@ -3,13 +3,21 @@ use ndarray::*;
 use ndarray_linalg::*;
 use num_traits::One;
 
+/// Core implementation for difference schemes
+pub trait Difference: ModelSpec {
+    /// calculate recurrence formula from current state
+    fn recr<'a, S>(&mut self, x: &'a mut ArrayBase<S, Self::Dim>) -> &'a mut ArrayBase<S, Self::Dim>
+    where
+        S: DataMut<Elem = Self::Scalar>;
+}
+
 #[derive(Debug, Clone)]
-pub struct Diff<F: Explicit> {
+pub struct Diff<F: Difference> {
     f: F,
     x: Array<F::Scalar, F::Dim>,
 }
 
-impl<A: Scalar, F: Explicit<Scalar = A>> TimeStep for Diff<F> {
+impl<A: Scalar, F: Difference<Scalar = A>> TimeStep for Diff<F> {
     type Time = A::Real;
 
     fn get_dt(&self) -> Self::Time {
@@ -21,7 +29,7 @@ impl<A: Scalar, F: Explicit<Scalar = A>> TimeStep for Diff<F> {
     }
 }
 
-impl<F: Explicit> Scheme for Diff<F> {
+impl<F: Difference> Scheme for Diff<F> {
     type Core = F;
     fn new(f: F, dt: Self::Time) -> Self {
         if dt != One::one() {
@@ -38,13 +46,13 @@ impl<F: Explicit> Scheme for Diff<F> {
     }
 }
 
-impl<F: Explicit> Diff<F> {
+impl<F: Difference> Diff<F> {
     pub fn from(f: F) -> Self {
         Self::new(f, One::one())
     }
 }
 
-impl<F: Explicit> ModelSpec for Diff<F> {
+impl<F: Difference> ModelSpec for Diff<F> {
     type Scalar = F::Scalar;
     type Dim = F::Dim;
     fn model_size(&self) -> <Self::Dim as Dimension>::Pattern {
@@ -52,13 +60,13 @@ impl<F: Explicit> ModelSpec for Diff<F> {
     }
 }
 
-impl<F: Explicit> TimeEvolution for Diff<F> {
+impl<F:Difference> TimeEvolution for Diff<F> {
     fn iterate<'a, S>(&mut self, x: &'a mut ArrayBase<S, F::Dim>) -> &'a mut ArrayBase<S, Self::Dim>
     where
         S: DataMut<Elem = Self::Scalar>,
     {
         self.x.zip_mut_with(x, |buf, x| *buf = *x);
-        let fx = self.f.rhs(x);
+        let fx = self.f.recr(x);
 
         fx
     }
