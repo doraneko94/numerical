@@ -5,6 +5,7 @@ use ndarray_linalg::*;
 use crate::difference::*;
 use ndarray_linalg::solve::LUFactorized;
 
+#[derive(Clone)]
 pub struct Parabolic {
     pub range: (f64, f64),
     pub c: f64,
@@ -12,23 +13,6 @@ pub struct Parabolic {
     pub x_part: usize,
     pub dx: f64,
     pub lu: LUFactorized<ndarray::OwnedRepr<f64>>,
-}
-
-impl Clone for Parabolic {
-    fn clone(&self) -> Self {
-        let a = self.lu.a.clone();
-        let ipiv = self.lu.ipiv.clone();
-        Self { range: self.range.clone(),
-               c: self.c.clone(),
-               dt: self.dt.clone(),
-               x_part: self.x_part.clone(),
-               dx: self.dx.clone(),
-               lu: LUFactorized::<ndarray::OwnedRepr<f64>> { a, ipiv } }
-    }
-
-    fn clone_from(&mut self, source: &Self) {
-        *self = source.clone();
-    }
 }
 
 fn calc_lu(range: (f64, f64), c: f64, dt: f64, x_part: usize) -> LUFactorized<ndarray::OwnedRepr<f64>> {

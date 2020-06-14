@@ -12,6 +12,7 @@ intel-mkl = ["ndarray-linalg/intel-mkl", "eom/intel-mkl"]
 
 [dependencies]
 num-traits = "^0.2"
+cauchy = "0.2.2"
 ndarray = "^0.13"
-ndarray-linalg = "^0.12"
+ndarray-linalg = { git = "https://github.com/doraneko94/ndarray-linalg", branch = "tridiagonal" }
 eom = { git = "https://github.com/termoshtt/eom" }
